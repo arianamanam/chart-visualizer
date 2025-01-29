@@ -201,7 +201,7 @@ import * as d3 from 'd3';
 
 @Component({
   selector: 'app-gauge-chart',
-  templateUrl: './gauge-chart.component.html',
+  template: `<div #chart></div>`,
   styleUrls: ['./gauge-chart.component.scss'],
 })
 export class GaugeChartComponent implements AfterViewInit {
@@ -212,83 +212,116 @@ export class GaugeChartComponent implements AfterViewInit {
   }
 
   private createGaugeChart(): void {
-    const width = 400;
-    const height = 400;
+    const width = 500;
+    const height = 300;
     const margin = 30;
+    const radius = Math.min(width, height * 2) / 2 - margin;
 
-    const radius = Math.min(width, height) / 2 - margin;
+    const value = 9; // مقدار دلخواه برای نمایش
 
-    // داده‌ها و سایر محاسبات به همان شکل قبلی
-    const randomScalingFactor = () => Math.round(Math.random() * 100);
-    const randomData = [
-      randomScalingFactor(),
-      randomScalingFactor(),
-      randomScalingFactor(),
-      randomScalingFactor(),
+    // تقسیم‌بندی بازه‌ها
+    const sections = [
+      { color: '#e53935' },
+      { color: '#fb8c00' },
+      { color: '#fdd835' },
+      { color: '#ffee58' },
+      { color: '#c0ca33' },
+      { color: '#43a047' },
+      { color: '#1b5e20' },
     ];
 
-    const value = Math.max(...randomData) * Math.random();
-
-    const arc = d3
-      .arc()
-      .innerRadius(radius - 30)
-      .outerRadius(radius)
-      .startAngle(
-        (d: d3.DefaultArcObject) => (d.startAngle - 90) * (Math.PI / 180)
-      );
+    const startAngle = (-Math.PI * 3) / 4;
+    const endAngle = (Math.PI * 3) / 4;
+    const angleStep = (endAngle - startAngle) / sections.length;
 
     const svg = d3
       .select(this.chartElement.nativeElement)
       .append('svg')
       .attr('width', width)
-      .attr('height', height)
+      .attr('height', height + 50)
       .append('g')
-      .attr('transform', `translate(${width / 2},${height / 2})`);
+      .attr('transform', `translate(${width / 2},${height * 0.8})`);
 
-    const background = svg.append('g').attr('class', 'background');
-
-    background
+    // پس‌زمینه نیم‌دایره خاکستری
+    svg
       .append('path')
-      .datum({
-        startAngle: 0,
-        endAngle: Math.PI,
-        innerRadius: radius - 30,
-        outerRadius: radius,
-      })
-      .style('fill', 'lightgray')
-      .attr('d', arc);
+      .datum({ startAngle, endAngle })
+      .style('fill', '#ddd')
+      .attr(
+        'd',
+        d3
+          .arc()
+          .innerRadius(radius - 30)
+          .outerRadius(radius) as any
+      );
 
-    const foreground = svg.append('g').attr('class', 'foreground');
+    // رسم بخش‌های رنگی
+    sections.forEach((d, i) => {
+      svg
+        .append('path')
+        .datum({
+          startAngle: startAngle + i * angleStep,
+          endAngle: startAngle + (i + 1) * angleStep,
+        })
+        .style('fill', d.color)
+        .attr(
+          'd',
+          d3
+            .arc()
+            .innerRadius(radius - 30)
+            .outerRadius(radius) as any
+        );
+    });
 
-    foreground
-      .append('path')
-      .datum({
-        startAngle: 0,
-        endAngle: value * (Math.PI / 100),
-        innerRadius: radius - 30,
-        outerRadius: radius,
-      })
-      .style('fill', 'steelblue')
-      .attr('d', arc);
+    // مقدار مقیاس از -40 تا 100
+    const scale = d3.scaleLinear().domain([-40, 100]).range([-135, 135]);
+    const needleAngle = scale(value);
 
-    const needleLength = radius - 10;
-    const needle = svg
+    // نمایش سوزن
+    svg
       .append('line')
       .attr('x1', 0)
       .attr('y1', 0)
       .attr('x2', 0)
-      .attr('y2', -needleLength)
-      .style('stroke', 'black')
-      .style('stroke-width', 3)
-      .attr('transform', `rotate(${(value - 90) * (Math.PI / 180)})`);
+      .attr('y2', -(radius - 10))
+      .style('stroke', '#ff9800')
+      .style('stroke-width', 6)
+      .attr('transform', `rotate(${needleAngle})`);
 
+    // دایره کوچک وسط گیج
+    svg
+      .append('circle')
+      .attr('cx', 0)
+      .attr('cy', 0)
+      .attr('r', 30)
+      .style('fill', '#ff9800');
+
+    // نمایش مقدار درون دایره
     svg
       .append('text')
       .attr('x', 0)
-      .attr('y', radius + 20)
+      .attr('y', 5)
       .attr('text-anchor', 'middle')
+      .style('fill', 'white')
       .style('font-size', '20px')
       .style('font-weight', 'bold')
-      .text('Gauge Chart');
+      .text(value);
+
+    // نمایش نام دسته‌ها روی بازه‌ها
+    sections.forEach((d, i) => {
+      const midAngle = startAngle + (i + 0.5) * angleStep;
+      const x = (radius - 10) * Math.cos(midAngle);
+      const y = (radius - 10) * Math.sin(midAngle);
+
+      svg
+        .append('text')
+        .attr('x', x)
+        .attr('y', y)
+        .attr('dy', '0.35em')
+        .attr('text-anchor', 'middle')
+        .style('fill', 'white')
+        .style('font-size', '10px')
+        .style('font-weight', 'bold');
+    });
   }
 }

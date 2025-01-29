@@ -1,6 +1,24 @@
+<!-- <div class="charts-container grid grid-cols-2 gap-6 p-6">
+  <app-bar-chart
+    [data]="barChartData"
+    class="chart-card col-span-2"
+  ></app-bar-chart>
+  <app-donut-chart [data]="donutChartData" class="chart-card"></app-donut-chart>
+  <app-line-chart class="chart-card"></app-line-chart>
+  <app-gauge-chart class="chart-card col-span-2"></app-gauge-chart>
+</div> -->
+
 <div class="charts-container">
-  <app-bar-chart [data]="barChartData"></app-bar-chart>
-  <app-donut-chart [data]="donutChartData"></app-donut-chart>
-  <app-line-chart></app-line-chart>
-  <app-gauge-chart></app-gauge-chart>
+  <div class="chart-card col-span-2">
+    <app-bar-chart [data]="barChartData"></app-bar-chart>
+  </div>
+  <div class="chart-card">
+    <app-donut-chart [data]="donutChartData"></app-donut-chart>
+  </div>
+  <div class="chart-card">
+    <app-line-chart></app-line-chart>
+  </div>
+  <div class="chart-card col-span-2">
+    <app-gauge-chart></app-gauge-chart>
+  </div>
 </div>

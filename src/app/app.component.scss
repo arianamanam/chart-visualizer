@@ -4,3 +4,29 @@
   gap: 30px;
   flex-wrap: wrap;
 }
+// @media (max-width: 768px) {
+//   .charts-container {
+//     grid-template-columns: 1fr;
+//   }
+// }
+.charts-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.chart-card {
+  background: #e0e5ec;
+  border-radius: 15px;
+  box-shadow: 8px 8px 16px #b8b9be, -8px -8px 16px #ffffff;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    box-shadow: inset 4px 4px 10px #b8b9be, inset -4px -4px 10px #ffffff;
+  }
+}

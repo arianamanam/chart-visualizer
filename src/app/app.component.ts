@@ -17,6 +17,9 @@ import { GaugeChartComponent } from './components/gauge-chart/gauge-chart.compon
   ],
 })
 export class AppComponent {
+  // برای تست داده‌هایی برای Gauge Chart می‌سازیم
+  gaugeData = 75; // درصدی که در نمودار نمایش داده می‌شود
+
   barChartData = [
     { letter: 'A', frequency: 0.08167 },
     { letter: 'B', frequency: 0.01492 },
@@ -29,5 +32,6 @@ export class AppComponent {
     { name: 'Bananas', value: 50 },
     { name: 'Cherries', value: 20 },
   ];
+
   lineChartData: any;
 }
