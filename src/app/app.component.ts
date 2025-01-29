@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { DonutChartComponent } from './components/donut-chart/donut-chart.component';
-import { LineChartComponent } from './line-chart/line-chart.component';
-import { GaugeChartComponent } from './gauge-chart/gauge-chart.component';
+import { LineChartComponent } from './components/line-chart/line-chart.component';
+import { GaugeChartComponent } from './components/gauge-chart/gauge-chart.component';
 
 @Component({
   selector: 'app-root',
