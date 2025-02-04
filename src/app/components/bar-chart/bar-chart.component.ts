@@ -27,7 +27,6 @@ export class BarChartComponent implements AfterViewInit {
   }
 
   private createChart() {
-    // حذف محتوای قبلی قبل از رسم نمودار جدید
     d3.select(this.chartContainer.nativeElement).selectAll('*').remove();
 
     const width = 928;

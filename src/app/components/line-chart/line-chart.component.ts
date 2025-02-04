@@ -79,10 +79,8 @@ export class LineChartComponent implements AfterViewInit {
       'max-width: 100%; height: auto; height: intrinsic;'
     );
 
-    // تبدیل SVG به D3.js برای ادامه پردازش
     const d3Svg = d3.select(svg);
 
-    // اضافه کردن محور X
     d3Svg
       .append('g')
       .attr('transform', `translate(0,${height - marginBottom})`)
@@ -93,7 +91,6 @@ export class LineChartComponent implements AfterViewInit {
           .tickSizeOuter(0)
       );
 
-    // اضافه کردن محور Y
     d3Svg
       .append('g')
       .attr('transform', `translate(${marginLeft},0)`)
@@ -116,7 +113,6 @@ export class LineChartComponent implements AfterViewInit {
           .text('↑ Daily close ($)')
       );
 
-    // رسم خط نمودار
     d3Svg
       .append('path')
       .datum(this.aapl)
@@ -125,7 +121,6 @@ export class LineChartComponent implements AfterViewInit {
       .attr('stroke-width', 1.5)
       .attr('d', line);
 
-    // اضافه کردن SVG به `chartContainer`
     this.renderer.appendChild(this.chartContainer.nativeElement, svg);
   }
 }

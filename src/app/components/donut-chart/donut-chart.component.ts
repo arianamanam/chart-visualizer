@@ -21,7 +21,6 @@ export class DonutChartComponent implements AfterViewInit {
   }
 
   private createChart() {
-    // حذف نمودار قبلی در صورت وجود
     d3.select(this.el.nativeElement.querySelector('#donut-chart'))
       .selectAll('*')
       .remove();
