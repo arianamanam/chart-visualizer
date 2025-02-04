@@ -9,14 +9,23 @@ import * as d3 from 'd3';
 })
 export class DonutChartComponent implements AfterViewInit {
   @Input() data: { name: string; value: number }[] = [];
+  private isChartCreated = false;
 
   constructor(private el: ElementRef) {}
 
   ngAfterViewInit() {
-    this.createChart();
+    if (!this.isChartCreated) {
+      this.createChart();
+      this.isChartCreated = true;
+    }
   }
 
   private createChart() {
+    // حذف نمودار قبلی در صورت وجود
+    d3.select(this.el.nativeElement.querySelector('#donut-chart'))
+      .selectAll('*')
+      .remove();
+
     const width = 500;
     const height = 500;
     const radius = Math.min(width, height) / 2;

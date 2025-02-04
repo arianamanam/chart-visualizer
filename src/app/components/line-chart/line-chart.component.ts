@@ -1,5 +1,14 @@
-import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  AfterViewInit,
+  ViewChild,
+  ElementRef,
+  Inject,
+  PLATFORM_ID,
+  Renderer2,
+} from '@angular/core';
 import * as d3 from 'd3';
+import { isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-line-chart',
@@ -8,7 +17,7 @@ import * as d3 from 'd3';
   standalone: true,
 })
 export class LineChartComponent implements AfterViewInit {
-  @ViewChild('chartContainer') chartContainer!: ElementRef;
+  @ViewChild('chartContainer', { static: false }) chartContainer!: ElementRef;
 
   aapl: { date: Date; close: number }[] = [
     { date: new Date('2020-01-01'), close: 100 },
@@ -17,10 +26,15 @@ export class LineChartComponent implements AfterViewInit {
     { date: new Date('2020-01-04'), close: 120 },
   ];
 
-  constructor() {}
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: any,
+    private renderer: Renderer2
+  ) {}
 
   ngAfterViewInit() {
-    this.createLineChart();
+    if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => this.createLineChart(), 0);
+    }
   }
 
   createLineChart() {
@@ -34,18 +48,15 @@ export class LineChartComponent implements AfterViewInit {
 
     // Parse the data dates
     const parseDate = d3.utcParse('%Y-%m-%d');
-    this.aapl.forEach(
-      (d) =>
-        (d.date = parseDate(d.date.toISOString().split('T')[0]) || new Date())
-    );
+    this.aapl = this.aapl.map((d) => ({
+      date: parseDate(d.date.toISOString().split('T')[0]) || d.date,
+      close: d.close,
+    }));
 
-    // Declare the x (horizontal position) scale
     const x = d3.scaleUtc(d3.extent(this.aapl, (d) => d.date) as [Date, Date], [
       marginLeft,
       width - marginRight,
     ]);
-
-    // Declare the y (vertical position) scale
     const y = d3.scaleLinear(
       [0, d3.max(this.aapl, (d) => d.close) as number],
       [height - marginBottom, marginTop]
@@ -58,15 +69,21 @@ export class LineChartComponent implements AfterViewInit {
       .y((d) => y(d.close));
 
     // Create the SVG container
-    const svg = d3
-      .create('svg')
-      .attr('width', width)
-      .attr('height', height)
-      .attr('viewBox', [0, 0, width, height])
-      .attr('style', 'max-width: 100%; height: auto; height: intrinsic;');
+    const svg = this.renderer.createElement('svg', 'svg');
+    this.renderer.setAttribute(svg, 'width', width.toString());
+    this.renderer.setAttribute(svg, 'height', height.toString());
+    this.renderer.setAttribute(svg, 'viewBox', `0 0 ${width} ${height}`);
+    this.renderer.setAttribute(
+      svg,
+      'style',
+      'max-width: 100%; height: auto; height: intrinsic;'
+    );
 
-    // Add the x-axis
-    svg
+    // تبدیل SVG به D3.js برای ادامه پردازش
+    const d3Svg = d3.select(svg);
+
+    // اضافه کردن محور X
+    d3Svg
       .append('g')
       .attr('transform', `translate(0,${height - marginBottom})`)
       .call(
@@ -76,8 +93,8 @@ export class LineChartComponent implements AfterViewInit {
           .tickSizeOuter(0)
       );
 
-    // Add the y-axis, remove the domain line, add grid lines and a label
-    svg
+    // اضافه کردن محور Y
+    d3Svg
       .append('g')
       .attr('transform', `translate(${marginLeft},0)`)
       .call(d3.axisLeft(y).ticks(height / 40))
@@ -99,15 +116,16 @@ export class LineChartComponent implements AfterViewInit {
           .text('↑ Daily close ($)')
       );
 
-    // Append a path for the line
-    svg
+    // رسم خط نمودار
+    d3Svg
       .append('path')
+      .datum(this.aapl)
       .attr('fill', 'none')
       .attr('stroke', 'steelblue')
       .attr('stroke-width', 1.5)
-      .attr('d', line(this.aapl));
+      .attr('d', line);
 
-    // Append the chart to the container div
-    this.chartContainer.nativeElement.appendChild(svg.node());
+    // اضافه کردن SVG به `chartContainer`
+    this.renderer.appendChild(this.chartContainer.nativeElement, svg);
   }
 }

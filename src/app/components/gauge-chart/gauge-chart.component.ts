@@ -196,22 +196,29 @@
 //   }
 // }
 
-import { Component, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import * as d3 from 'd3';
 
 @Component({
   selector: 'app-gauge-chart',
-  template: `<div #chart></div>`,
+  template: '<div #chart></div>',
   styleUrls: ['./gauge-chart.component.scss'],
 })
 export class GaugeChartComponent implements AfterViewInit {
-  @ViewChild('chart') chartElement!: ElementRef;
+  @ViewChild('chart', { static: true }) chartElement!: ElementRef;
+  private isChartCreated = false;
 
   ngAfterViewInit(): void {
-    this.createGaugeChart();
+    if (!this.isChartCreated) {
+      this.createGaugeChart();
+      this.isChartCreated = true;
+    }
   }
 
   private createGaugeChart(): void {
+    // حذف محتوای قبلی قبل از رسم نمودار جدید
+    d3.select(this.chartElement.nativeElement).selectAll('*').remove();
+
     const width = 500;
     const height = 300;
     const margin = 30;
@@ -306,22 +313,5 @@ export class GaugeChartComponent implements AfterViewInit {
       .style('font-size', '20px')
       .style('font-weight', 'bold')
       .text(value);
-
-    // نمایش نام دسته‌ها روی بازه‌ها
-    sections.forEach((d, i) => {
-      const midAngle = startAngle + (i + 0.5) * angleStep;
-      const x = (radius - 10) * Math.cos(midAngle);
-      const y = (radius - 10) * Math.sin(midAngle);
-
-      svg
-        .append('text')
-        .attr('x', x)
-        .attr('y', y)
-        .attr('dy', '0.35em')
-        .attr('text-anchor', 'middle')
-        .style('fill', 'white')
-        .style('font-size', '10px')
-        .style('font-weight', 'bold');
-    });
   }
 }

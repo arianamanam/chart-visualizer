@@ -1,22 +1,35 @@
-import { Component, ElementRef, Input, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Input,
+  ViewChild,
+  AfterViewInit,
+} from '@angular/core';
 import * as d3 from 'd3';
 
 @Component({
   selector: 'app-bar-chart',
   standalone: true,
-  template: `<div id="bar-chart"></div>`,
+  template: `<div #chartContainer></div>`,
   styleUrls: ['./bar-chart.component.scss'],
 })
 export class BarChartComponent implements AfterViewInit {
   @Input() data: { letter: string; frequency: number }[] = [];
+  @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
 
-  constructor(private el: ElementRef) {}
+  private isChartCreated = false;
 
   ngAfterViewInit() {
-    this.createChart();
+    if (!this.isChartCreated) {
+      this.createChart();
+      this.isChartCreated = true;
+    }
   }
 
   private createChart() {
+    // حذف محتوای قبلی قبل از رسم نمودار جدید
+    d3.select(this.chartContainer.nativeElement).selectAll('*').remove();
+
     const width = 928;
     const height = 500;
     const margin = { top: 30, right: 0, bottom: 30, left: 40 };
@@ -33,7 +46,7 @@ export class BarChartComponent implements AfterViewInit {
       .range([height - margin.bottom, margin.top]);
 
     const svg = d3
-      .select(this.el.nativeElement.querySelector('#bar-chart'))
+      .select(this.chartContainer.nativeElement)
       .append('svg')
       .attr('width', width)
       .attr('height', height)
